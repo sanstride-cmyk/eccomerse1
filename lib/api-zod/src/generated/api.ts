@@ -14,3 +14,19 @@ import * as zod from "zod";
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
+
+/**
+ * Generates a complete high-converting product package from a product image URL and details
+ * @summary Generate product content package
+ */
+export const GenerateProductContentBody = zod.object({
+  imageUrl: zod.string().describe("URL of the product image"),
+  productCategory: zod
+    .string()
+    .optional()
+    .describe("Optional product category"),
+  additionalInfo: zod
+    .string()
+    .optional()
+    .describe("Any additional context about the product"),
+});

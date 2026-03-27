@@ -1,6 +1,5 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
   description: API specification
@@ -10,6 +9,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: product
+    description: Product content generation operations
 paths:
   /healthz:
     get:
@@ -24,6 +25,29 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /product/generate:
+    post:
+      operationId: generateProductContent
+      tags: [product]
+      summary: Generate product content package
+      description: Generates a complete high-converting product package from a product image URL and details
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateProductContentBody"
+      responses:
+        "200":
+          description: SSE stream of generated product content
+          content:
+            text/event-stream: {}
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductError"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +57,24 @@ components:
           type: string
       required:
         - status
-
+    GenerateProductContentBody:
+      type: object
+      properties:
+        imageUrl:
+          type: string
+          description: URL of the product image
+        productCategory:
+          type: string
+          description: Optional product category
+        additionalInfo:
+          type: string
+          description: Any additional context about the product
+      required:
+        - imageUrl
+    ProductError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error

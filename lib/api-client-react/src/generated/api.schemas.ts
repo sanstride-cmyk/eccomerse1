@@ -8,3 +8,16 @@
 export interface HealthStatus {
   status: string;
 }
+
+export interface GenerateProductContentBody {
+  /** URL of the product image */
+  imageUrl: string;
+  /** Optional product category */
+  productCategory?: string;
+  /** Any additional context about the product */
+  additionalInfo?: string;
+}
+
+export interface ProductError {
+  error: string;
+}

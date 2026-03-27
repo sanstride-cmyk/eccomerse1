@@ -1,0 +1,16 @@
+packages:
+  "framer-motion": "For smooth reveal animations of generated content streams"
+  "react-hook-form": "For robust form state and validation"
+  "@hookform/resolvers": "For zod schema validation with react-hook-form"
+  "clsx": "For conditional class name joining"
+  "tailwind-merge": "For merging tailwind classes safely"
+
+images:
+  - path: "artifacts/product-generator/public/images/empty-state.png"
+    description: "A minimalist, abstract 3d illustration of a glowing orange-red box or package opening up, clean white background, soft studio lighting, highly polished, sleek corporate vibe"
+    aspect_ratio: "1:1"
+
+notes:
+  - The backend returns an SSE stream for the /api/product/generate endpoint.
+  - Assuming the stream sends events in the format: data: {"section": "sectionName", "content": "generated string"} followed by data: {"done": true}
+  - Using TextDecoder to parse the raw fetch stream since EventSource doesn't support POST requests with body data.

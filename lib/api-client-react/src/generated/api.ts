@@ -5,18 +5,25 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
 
-import type { HealthStatus } from "./api.schemas";
+import type {
+  GenerateProductContentBody,
+  HealthStatus,
+  ProductError,
+} from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
-import type { ErrorType } from "../custom-fetch";
+import type { ErrorType, BodyType } from "../custom-fetch";
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -99,3 +106,91 @@ export function useHealthCheck<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * Generates a complete high-converting product package from a product image URL and details
+ * @summary Generate product content package
+ */
+export const getGenerateProductContentUrl = () => {
+  return `/api/product/generate`;
+};
+
+export const generateProductContent = async (
+  generateProductContentBody: GenerateProductContentBody,
+  options?: RequestInit,
+): Promise<unknown> => {
+  return customFetch<unknown>(getGenerateProductContentUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(generateProductContentBody),
+  });
+};
+
+export const getGenerateProductContentMutationOptions = <
+  TError = ErrorType<ProductError>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof generateProductContent>>,
+    TError,
+    { data: BodyType<GenerateProductContentBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof generateProductContent>>,
+  TError,
+  { data: BodyType<GenerateProductContentBody> },
+  TContext
+> => {
+  const mutationKey = ["generateProductContent"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof generateProductContent>>,
+    { data: BodyType<GenerateProductContentBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return generateProductContent(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type GenerateProductContentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof generateProductContent>>
+>;
+export type GenerateProductContentMutationBody =
+  BodyType<GenerateProductContentBody>;
+export type GenerateProductContentMutationError = ErrorType<ProductError>;
+
+/**
+ * @summary Generate product content package
+ */
+export const useGenerateProductContent = <
+  TError = ErrorType<ProductError>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof generateProductContent>>,
+    TError,
+    { data: BodyType<GenerateProductContentBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof generateProductContent>>,
+  TError,
+  { data: BodyType<GenerateProductContentBody> },
+  TContext
+> => {
+  return useMutation(getGenerateProductContentMutationOptions(options));
+};
